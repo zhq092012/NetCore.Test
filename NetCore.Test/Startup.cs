@@ -48,12 +48,21 @@ namespace NetCore.Test
                 var xmlPath = Path.Combine(basePath, "NetCore.Test.xml");
                 c.IncludeXmlComments(xmlPath);
                 c.DocumentFilter<SwaggerDocTag>();
+                var security = new Dictionary<string, IEnumerable<string>> { { "Bearer", new string[] { } } };
+                c.AddSecurityRequirement(security);
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT授权(数据将在请求头中进行传输) 参数结构:\"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
             });
             #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env,ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
