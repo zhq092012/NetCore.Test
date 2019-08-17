@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.PlatformAbstractions;
+using NetCore.Test.SwaggerTagHelper;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace NetCore.Test
@@ -38,6 +41,11 @@ namespace NetCore.Test
                     TermsOfService = "None",
                     Contact = new Contact { Name = "NetCore.Test", Email = "zhq_092012@163.com" }
                 });
+                //添加读取注释服务
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var xmlPath = Path.Combine(basePath, "NetCore.Test.xml");
+                c.IncludeXmlComments(xmlPath);
+                c.DocumentFilter<SwaggerDocTag>();
             });
             #endregion
         }
@@ -56,6 +64,13 @@ namespace NetCore.Test
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            #region Swagger
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiHelp.V1");
+            });
+            #endregion
         }
     }
 }
