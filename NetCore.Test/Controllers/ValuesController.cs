@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using NLog;
 
 namespace NetCore.Test.Controllers
 {
@@ -14,6 +15,8 @@ namespace NetCore.Test.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
+            var logger = LogManager.GetLogger("NetCore");
+            logger.Info("信息日志");
             return new string[] { "value1", "value2" };
         }
 

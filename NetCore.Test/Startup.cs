@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.PlatformAbstractions;
 using NetCore.Test.SwaggerTagHelper;
+using NLog.Extensions.Logging;
+using NLog.Web;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace NetCore.Test
@@ -51,7 +53,7 @@ namespace NetCore.Test
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -64,6 +66,10 @@ namespace NetCore.Test
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            #region Nlog
+            loggerFactory.AddNLog();
+            env.ConfigureNLog("nlog.config");
+            #endregion
             #region Swagger
             app.UseSwagger();
             app.UseSwaggerUI(c =>
