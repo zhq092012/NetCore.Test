@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.PlatformAbstractions;
+using NetCore.Test.AuthHelper;
 using NetCore.Test.SwaggerTagHelper;
 using NLog.Extensions.Logging;
 using NLog.Web;
@@ -59,6 +61,19 @@ namespace NetCore.Test
                 });
             });
             #endregion
+            //缓存
+            services.AddSingleton<IMemoryCache>(factory =>
+            {
+                var cache = new MemoryCache(new MemoryCacheOptions());
+                return cache;
+            });
+            //认证
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("System", policy => policy.RequireClaim("SystemType").Build());
+                options.AddPolicy("Client", policy => policy.RequireClaim("ClientType").Build());
+                options.AddPolicy("Admin", policy => policy.RequireClaim("AdminType").Build());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,7 +89,7 @@ namespace NetCore.Test
             }
 
             app.UseHttpsRedirection();
-            app.UseMvc();
+
             #region Nlog
             loggerFactory.AddNLog();
             env.ConfigureNLog("nlog.config");
@@ -86,6 +101,12 @@ namespace NetCore.Test
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiHelp.V1");
             });
             #endregion
+            #region TokenAuth
+            app.UseMiddleware<TokenAuth>();
+            #endregion
+
+            app.UseMvc();
+           
         }
     }
 }

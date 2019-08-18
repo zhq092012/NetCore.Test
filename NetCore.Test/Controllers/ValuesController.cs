@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 
@@ -13,6 +14,7 @@ namespace NetCore.Test.Controllers
     {
         // GET api/values
         [HttpGet]
+        [Authorize(Policy = "admin")]
         public ActionResult<IEnumerable<string>> Get()
         {
             var logger = LogManager.GetLogger("NetCore");
